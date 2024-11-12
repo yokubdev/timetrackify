@@ -45,6 +45,7 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+qodana.yaml
 
 # Runtime data
 pids

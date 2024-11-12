@@ -4,11 +4,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UsersService } from '../users/users.service';
+import { CreateUserDto } from '../../users/dto/create-user.dto';
+import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../users/users.model';
+import { User } from '../../users/users.model';
 
 @Injectable()
 export class AuthService {
@@ -30,11 +30,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const hashPassword = await bcrypt.hash(userDto.password, 5);
-    const user = await this.userService.createUser({
-      ...userDto,
-      password: hashPassword,
-    });
+    const user = await this.userService.createUser(userDto);
     return this.generateToken(user);
   }
 
@@ -54,8 +50,6 @@ export class AuthService {
     if (user && passwordEquals) {
       return user;
     }
-    throw new UnauthorizedException({
-      message: 'Некорректный емайл или пароль',
-    });
+    throw new UnauthorizedException('Некорректный емайл или пароль');
   }
 }

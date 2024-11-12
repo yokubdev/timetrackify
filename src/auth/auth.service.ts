@@ -29,25 +29,34 @@ export class AuthService {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
 
-    const hashPassword = await bcrypt.hash(userDto.password, 5);
-    const user = await this.userService.createUser({
-      ...userDto,
-      password: hashPassword,
-    });
+    const user = await this.userService.createUser(userDto);
     return this.generateToken(user);
   }
+
   private async generateToken(user: User) {
-    const payload = { email: user.email, id: user.id, roles: user.roles };
+    const payload = {
+      email: user.email,
+      id: user.id,
+      roles: user.roles,
+    };
+
+    const token = this.jwtService.sign(payload);
+
     return {
-      token: this.jwtService.sign(payload),
+      token,
     };
   }
 
   private async validateUser(userDto: CreateUserDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
 
-    const passwordEquals = bcrypt.compare(userDto.password, user.password);
+    const passwordEquals = await bcrypt.compare(
+      userDto.password,
+      user.password,
+    );
+
     if (user && passwordEquals) {
+      console.log('Validated User :', user);
       return user;
     }
 
